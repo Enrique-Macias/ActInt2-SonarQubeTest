@@ -1,5 +1,37 @@
-// Equipo 3
-// Dat3: 26/11/2024
+/*
+* SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2013 SonarSource
+ * http://github.com/SonarOpenCommunity/sonar-cxx
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Instituto Tecnológico de Monterrey
+ # Evidencia Integradora 2
+ * Clase: Análisis y diseño de algoritmos avanzados (Gpo 604)
+ * Profesor: Felipe Castillo Rendón
+ * Fecha: 29 Noviembre 2024 
+ *
+ * Este código fue desarrollado como parte de una actividad académica.
+ * Integrantes del equipo 3:
+ * - Mauricio Lozano Zarate (A00833216)
+ * - Aleksandra Stupiec (A00835071)
+ * - Enrique Macías López (A01641402)
+ * 
+ * Este código está protegido por derechos de autor y solo debe ser usado
+ * con fines educativos en el contexto del curso mencionado.
+ */
 
 #include <iostream>
 #include <vector>
