@@ -145,7 +145,8 @@ bool bfs(vector<vector<int>> &residual, int source, int sink, vector<int> &paren
                 q.push(v);
                 parent[v] = u;
                 visited[v] = true;
-                if (v == sink) return true;
+                if (v == sink) 
+                 return true;
             }
         }
     }
