@@ -5,3 +5,5 @@ Aleksandra Stupiec - Matrícula: A00835071
 Aleksandra desarrolló el algoritmo del Problema del Viajante (TSP), encontrando la ruta más corta para visitar todas las colonias y regresar al punto de origen. También realizó la revisión de los resultados para garantizar su precisión.
 Enrique Macías López - Matrícula: A01641402
 Enrique implementó el algoritmo de Ford-Fulkerson para calcular el flujo máximo de información entre los nodos. También trabajó en la integración del código y También se encargó de realizar pruebas unitarias para asegurar la correcta funcionalidad.
+
+El equipo trabajó de manera colaborativa para integrar las soluciones y garantizar el correcto funcionamiento del programa en su totalidad, cumpliendo con los objetivos planteados en la Actividad Integradora 2.
