@@ -27,7 +27,7 @@ int find(vector<int> &parent, int i) {
     return parent[i] = find(parent, parent[i]);
 }
 
-void unionSets(vector<int> &parent, vector<int> &rank, int u, int v) {
+void union_sets(vector<int> &parent, vector<int> &rank, int u, int v) {
     int pu = find(parent, u), pv = find(parent, v);
     if (rank[pu] > rank[pv])
         parent[pv] = pu;
@@ -59,7 +59,7 @@ vector<Edge> kruskal(int n, vector<vector<int>> &graph) {
 
     for (const auto &edge : edges) {
         if (find(parent, edge.u) != find(parent, edge.v)) {
-            unionSets(parent, rank, edge.u, edge.v);
+            union_sets(parent, rank, edge.u, edge.v);
             result.push_back(edge);
         }
     }
@@ -120,7 +120,7 @@ bool bfs(vector<vector<int>> &residual, int source, int sink, vector<int> &paren
     return false;
 }
 
-int fordFulkerson(vector<vector<int>> &capacity, int source, int sink) {
+int ford_fulkerson(vector<vector<int>> &capacity, int source, int sink) {
     int n = capacity.size();
     vector<vector<int>> residual = capacity;
     vector<int> parent(n);
@@ -150,7 +150,7 @@ double distance(pair<int, int> a, pair<int, int> b) {
     return sqrt(pow(a.first - b.first, 2) + pow(a.second - b.second, 2));
 }
 
-int nearestCentral(pair<int, int> house, vector<pair<int, int>> &centrals) {
+int nearest_central(pair<int, int> house, vector<pair<int, int>> &centrals) {
     int bestCentral = -1;
     double minDist = numeric_limits<double>::max();
 
@@ -214,13 +214,13 @@ int main() {
     cout << endl;
 
     // Ford-Fulkerson
-    int maxFlow = fordFulkerson(capacity, 0, n - 1);
+    int maxFlow = ford_fulkerson(capacity, 0, n - 1);
     cout << "3.\n" << maxFlow << endl;
 
     // Central más cercana
     cout << "4.\n";
     for (const auto &house : locations) {
-        int nearest = nearestCentral(house, centrals);
+        int nearest = nearest_central(house, centrals);
         cout << "(" << centrals[nearest].first << ", " << centrals[nearest].second << ")\n";
     }
 
