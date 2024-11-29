@@ -1,0 +1,7 @@
+Equipo de Trabajo:
+Mauricio Lozano Zárate - Matrícula: A00833216
+Mauricio trabajó en la implementación del algoritmo de Kruskal, diseñando la solución para optimizar la conexión de las colonias mediante fibra óptica. Además, colaboró en la validación de los resultados generados por este algoritmo.
+Aleksandra Stupiec - Matrícula: A00835071
+Aleksandra desarrolló el algoritmo del Problema del Viajante (TSP), encontrando la ruta más corta para visitar todas las colonias y regresar al punto de origen. También realizó la revisión de los resultados para garantizar su precisión.
+Enrique Macías López - Matrícula: A01641402
+Enrique implementó el algoritmo de Ford-Fulkerson para calcular el flujo máximo de información entre los nodos. También trabajó en la integración del código y También se encargó de realizar pruebas unitarias para asegurar la correcta funcionalidad.
