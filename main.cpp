@@ -3,19 +3,15 @@
  * Copyright (C) 2008-2013 SonarSource
  * http://github.com/SonarOpenCommunity/sonar-cxx
  *
- * SonarQube is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * SonarQube es software libre; puedes redistribuirlo y/o
+ * modificarlo bajo los términos de la Licencia Pública General Reducida de GNU
+ * como se publica por la Free Software Foundation; ya sea
+ * la versión 3 de la Licencia, o (a tu elección) cualquier versión posterior.
  *
- * SonarQube is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * SonarQube se distribuye con la esperanza de que sea útil,
+ * pero SIN NINGUNA GARANTÍA; incluso sin la garantía implícita de
+ * COMERCIABILIDAD o IDONEIDAD PARA UN PROPÓSITO PARTICULAR. Consulte la
+ * Licencia Pública General Reducida de GNU para más detalles.
  *
  * Instituto Tecnológico de Monterrey
  # Evidencia Integradora 2
@@ -44,25 +40,26 @@
 
 using namespace std;
 
-// rep para Kruskal
+// Estructura para representar aristas (usado en Kruskal)
 struct Edge {
-    int u, v, weight;
+    int u, v, weight; // Representa los nodos de la arista y su peso
     bool operator<(const Edge &other) const {
-        return weight < other.weight;
+        return weight < other.weight; // Ordenar por peso
     }
 };
 
-// Kruskal
+// Función para encontrar el representante del conjunto de un nodo (Kruskal)
 int find(vector<int> &parent, int i) {
     if (parent[i] == i)
-        return i;
-    return parent[i] = find(parent, parent[i]);
+        return i; // Si es su propio representante
+    return parent[i] = find(parent, parent[i]); // Compresión de ruta
 }
 
+// Función para unir dos conjuntos disjuntos (Kruskal)
 void union_sets(vector<int> &parent, vector<int> &rank, int u, int v) {
     int pu = find(parent, u), pv = find(parent, v);
     if (rank[pu] > rank[pv])
-        parent[pv] = pu;
+        parent[pv] = pu; // Unión por rango
     else if (rank[pu] < rank[pv])
         parent[pu] = pv;
     else {
@@ -71,14 +68,16 @@ void union_sets(vector<int> &parent, vector<int> &rank, int u, int v) {
     }
 }
 
+// Implementación del algoritmo de Kruskal
 vector<Edge> kruskal(int n, vector<vector<int>> &graph) {
     vector<Edge> edges, result;
     vector<int> parent(n), rank(n, 0);
 
+    // Inicialización de conjuntos disjuntos
     for (int i = 0; i < n; i++)
         parent[i] = i;
 
-    // lista de aristas
+    // Creación de la lista de aristas
     for (int i = 0; i < n; i++) {
         for (int j = i + 1; j < n; j++) {
             if (graph[i][j] > 0) {
@@ -87,8 +86,10 @@ vector<Edge> kruskal(int n, vector<vector<int>> &graph) {
         }
     }
 
+    // Ordenar las aristas por peso
     sort(edges.begin(), edges.end());
 
+    // Unión de conjuntos disjuntos según Kruskal
     for (const auto &edge : edges) {
         if (find(parent, edge.u) != find(parent, edge.v)) {
             union_sets(parent, rank, edge.u, edge.v);
@@ -99,24 +100,25 @@ vector<Edge> kruskal(int n, vector<vector<int>> &graph) {
     return result;
 }
 
-// Traveling Salesman
+// Implementación del Problema del Viajante (TSP)
 int tsp(int n, vector<vector<int>> &graph, vector<int> &path) {
     vector<int> nodes(n - 1);
-    iota(nodes.begin(), nodes.end(), 1);
+    iota(nodes.begin(), nodes.end(), 1); // Generar nodos 1, 2, ..., n-1
 
-    int minCost = numeric_limits<int>::max();
+    int minCost = numeric_limits<int>::max(); // Inicializar costo mínimo
     vector<int> bestPath;
 
+    // Generar todas las permutaciones posibles
     do {
         int cost = 0, prev = 0;
         for (int node : nodes) {
             cost += graph[prev][node];
             prev = node;
         }
-        cost += graph[prev][0];
+        cost += graph[prev][0]; // Regresar al nodo inicial
         if (cost < minCost) {
             minCost = cost;
-            bestPath = nodes;
+            bestPath = nodes; // Guardar la mejor ruta
         }
     } while (next_permutation(nodes.begin(), nodes.end()));
 
@@ -126,7 +128,7 @@ int tsp(int n, vector<vector<int>> &graph, vector<int> &path) {
     return minCost;
 }
 
-// Ford-Fulkerson
+// BFS para encontrar caminos en la red residual (Ford-Fulkerson)
 bool bfs(vector<vector<int>> &residual, int source, int sink, vector<int> &parent) {
     int n = residual.size();
     vector<bool> visited(n, false);
@@ -146,19 +148,21 @@ bool bfs(vector<vector<int>> &residual, int source, int sink, vector<int> &paren
                 parent[v] = u;
                 visited[v] = true;
                 if (v == sink) 
-                 return true;
+                 return true; // Si alcanzamos el nodo destino
             }
         }
     }
     return false;
 }
 
+// Implementación del algoritmo de Ford-Fulkerson
 int ford_fulkerson(vector<vector<int>> &capacity, int source, int sink) {
     int n = capacity.size();
-    vector<vector<int>> residual = capacity;
+    vector<vector<int>> residual = capacity; // Crear red residual
     vector<int> parent(n);
     int maxFlow = 0;
 
+    // Encontrar caminos aumentantes
     while (bfs(residual, source, sink, parent)) {
         int pathFlow = numeric_limits<int>::max();
         for (int v = sink; v != source; v = parent[v]) {
@@ -166,23 +170,25 @@ int ford_fulkerson(vector<vector<int>> &capacity, int source, int sink) {
             pathFlow = min(pathFlow, residual[u][v]);
         }
 
+        // Actualizar capacidades residuales
         for (int v = sink; v != source; v = parent[v]) {
             int u = parent[v];
             residual[u][v] -= pathFlow;
             residual[v][u] += pathFlow;
         }
 
-        maxFlow += pathFlow;
+        maxFlow += pathFlow; // Aumentar flujo máximo
     }
 
     return maxFlow;
 }
 
-// entral más cercana
+// Cálculo de distancia entre dos puntos
 double distance(pair<int, int> a, pair<int, int> b) {
     return sqrt(pow(a.first - b.first, 2) + pow(a.second - b.second, 2));
 }
 
+// Encontrar la central más cercana a una casa
 int nearest_central(pair<int, int> house, vector<pair<int, int>> &centrals) {
     int bestCentral = -1;
     double minDist = numeric_limits<double>::max();
@@ -191,7 +197,7 @@ int nearest_central(pair<int, int> house, vector<pair<int, int>> &centrals) {
         double d = distance(house, centrals[i]);
         if (d < minDist) {
             minDist = d;
-            bestCentral = i;
+            bestCentral = i; // Actualizar mejor central
         }
     }
 
@@ -208,11 +214,13 @@ int main() {
     vector<pair<int, int>> locations(n);
     vector<pair<int, int>> centrals;
 
+    // Leer grafo de distancias
     cout << "Ingrese los valores del grafo, que representan las distancias entre las colonias de la ciudad: " << endl;
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
             cin >> graph[i][j];
 
+    // Leer capacidad de flujo de datos
     cout << "Ingrese los valores del que representan las capacidades maximas de flujo de datos entre colonia i y colonia j: " << endl;
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
@@ -221,6 +229,7 @@ int main() {
     for (int i = 0; i < n; i++)
         cin >> locations[i].first >> locations[i].second;
 
+    // Leer ubicaciones de centrales
     int centralCount;
     cout << "Ingrese el numero de los centrales: " << endl;
     cin >> centralCount;
@@ -232,13 +241,13 @@ int main() {
         centrals.push_back(central);
     }
 
-    // Kruskal
+    // Ejecución de Kruskal
     auto edges = kruskal(n, graph);
     cout << "1.\n";
     for (const auto &edge : edges)
         cout << "(" << char('A' + edge.u) << ", " << char('A' + edge.v) << ")\n";
 
-    // Traveling Salesman Problem
+    // Ejecución del Problema del Viajante
     vector<int> path;
     int minCost = tsp(n, graph, path);
     cout << "2.\n";
@@ -246,11 +255,11 @@ int main() {
         cout << char('A' + node) << " ";
     cout << endl;
 
-    // Ford-Fulkerson
+    // Ejecución de Ford-Fulkerson
     int maxFlow = ford_fulkerson(capacity, 0, n - 1);
     cout << "3.\n" << maxFlow << endl;
 
-    // Central más cercana
+    // Encontrar central más cercana
     cout << "4.\n";
     for (const auto &house : locations) {
         int nearest = nearest_central(house, centrals);
