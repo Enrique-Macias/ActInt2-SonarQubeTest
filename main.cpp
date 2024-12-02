@@ -39,7 +39,7 @@
 using namespace std;
 
 // Definimos las colonias como letras para facilitar la identificación
-char getColonyName(int index) { return 'A' + index; }
+char get_colony_name(int index) { return 'A' + index; }
 
 // Estructura para representar una arista en el grafo
 struct Edge {
@@ -76,7 +76,7 @@ struct DisjointSets {
 
 // Función para implementar el algoritmo de Kruskal y encontrar el árbol mínimo
 // de expansión
-vector<Edge> kruskalMST(int n, const vector<vector<int>> &grafo) {
+vector<Edge> kruskal_mst(int n, const vector<vector<int>> &grafo) {
   vector<Edge> edges;
   // Convertimos la matriz de adyacencia en una lista de aristas
   for (int i = 0; i < n; i++) {
@@ -151,7 +151,7 @@ bool bfs(const vector<vector<int>> &rGraph, int s, int t, vector<int> &parent) {
   return false;
 }
 
-int fordFulkerson(vector<vector<int>> &graph, int s, int t) {
+int ford_fulkerson(vector<vector<int>> &graph, int s, int t) {
   int u, v;
   int n = graph.size();
   vector<vector<int>> rGraph = graph;
@@ -174,7 +174,7 @@ int fordFulkerson(vector<vector<int>> &graph, int s, int t) {
 }
 
 // Función para realizar la búsqueda lineal y encontrar la central más cercana
-pair<int, int> buscarCentralMasCercana(const vector<pair<int, int>> &centrales,
+pair<int, int> buscar_central_mas_cercana(const vector<pair<int, int>> &centrales,
                                        pair<int, int> nuevaUbicacion) {
   double distanciaMinima = numeric_limits<double>::max();
   pair<int, int> centralMasCercana;
@@ -226,26 +226,26 @@ int main() {
   }
 
   // Punto 1: Kruskal's Algorithm
-  vector<Edge> mst = kruskalMST(N, grafo);
+  vector<Edge> mst = kruskal_mst(N, grafo);
   cout << "1.\n";
   for (auto &edge : mst) {
-    cout << "(" << getColonyName(edge.origen) << ", "
-         << getColonyName(edge.destino) << ")\n";
+    cout << "(" << get_colony_name(edge.origen) << ", "
+         << get_colony_name(edge.destino) << ")\n";
   }
   // Punto 2: Traveling Salesman Problem
   vector<int> ruta_optima;
   tsp(N, grafo, ruta_optima);
   cout << "2.\n";
-  cout << getColonyName(0) << " ";
+  cout << get_colony_name(0) << " ";
   for (auto &v : ruta_optima)
-    cout << getColonyName(v) << " ";
-  cout << getColonyName(0) << "\n";
+    cout << get_colony_name(v) << " ";
+  cout << get_colony_name(0) << "\n";
   // Punto 3: Ford-Fulkerson Algorithm
-  int max_flow = fordFulkerson(capacidades, 0, N - 1);
+  int max_flow = ford_fulkerson(capacidades, 0, N - 1);
   cout << "3.\n" << max_flow << "\n";
   // Punto 4: Búsqueda lineal
   pair<int, int> centralCercana =
-      buscarCentralMasCercana(centrales, nuevaUbicacion);
+      buscar_central_mas_cercana(centrales, nuevaUbicacion);
   cout << "4.\n";
   cout << "(" << centralCercana.first << ", " << centralCercana.second << ")\n";
   return 0;
