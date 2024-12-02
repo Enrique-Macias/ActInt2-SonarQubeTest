@@ -17,254 +17,236 @@
  # Evidencia Integradora 2
  * Clase: Análisis y diseño de algoritmos avanzados (Gpo 604)
  * Profesor: Felipe Castillo Rendón
- * Fecha: 29 Noviembre 2024 
+ * Fecha: 1 Diciembre 2024
  *
  * Este código fue desarrollado como parte de una actividad académica.
  * Integrantes del equipo 3:
  * - Mauricio Lozano Zarate (A00833216)
  * - Aleksandra Stupiec (A00835071)
  * - Enrique Macías López (A01641402)
- * 
+ *
  * Este código está protegido por derechos de autor y solo debe ser usado
  * con fines educativos en el contexto del curso mencionado.
  */
 
-#include <iostream>
-#include <vector>
 #include <algorithm>
-#include <queue>
 #include <cmath>
+#include <iostream>
 #include <limits>
-#include <set>
-#include <numeric>
+#include <queue>
+#include <vector>
 
 using namespace std;
 
-// Estructura para representar aristas (usado en Kruskal)
+// Definimos las colonias como letras para facilitar la identificación
+char getColonyName(int index) { return 'A' + index; }
+
+// Estructura para representar una arista en el grafo
 struct Edge {
-    int u, v, weight; // Representa los nodos de la arista y su peso
-    bool operator<(const Edge &other) const {
-        return weight < other.weight; // Ordenar por peso
-    }
+  int origen;
+  int destino;
+  int peso;
+  bool operator<(const Edge &e) const { return peso < e.peso; }
 };
 
-// Función para encontrar el representante del conjunto de un nodo (Kruskal)
-int find(vector<int> &parent, int i) {
-    if (parent[i] == i)
-        return i; // Si es su propio representante
-    return parent[i] = find(parent, parent[i]); // Compresión de ruta
-}
-
-// Función para unir dos conjuntos disjuntos (Kruskal)
-void union_sets(vector<int> &parent, vector<int> &rank, int u, int v) {
-    int pu = find(parent, u), pv = find(parent, v);
-    if (rank[pu] > rank[pv])
-        parent[pv] = pu; // Unión por rango
-    else if (rank[pu] < rank[pv])
-        parent[pu] = pv;
-    else {
-        parent[pv] = pu;
-        rank[pu]++;
-    }
-}
-
-// Implementación del algoritmo de Kruskal
-vector<Edge> kruskal(int n, vector<vector<int>> &graph) {
-    vector<Edge> edges, result;
-    vector<int> parent(n), rank(n, 0);
-
-    // Inicialización de conjuntos disjuntos
+// Estructura para la búsqueda de conjuntos disjuntos (Union-Find)
+struct DisjointSets {
+  vector<int> parent, rank;
+  DisjointSets(int n) {
+    parent.resize(n);
+    rank.resize(n);
     for (int i = 0; i < n; i++)
-        parent[i] = i;
+      parent[i] = i;
+  }
+  int find(int u) {
+    if (u != parent[u])
+      parent[u] = find(parent[u]);
+    return parent[u];
+  }
+  void merge(int x, int y) {
+    x = find(x), y = find(y);
+    if (rank[x] > rank[y])
+      parent[y] = x;
+    else
+      parent[x] = y;
+    if (rank[x] == rank[y])
+      rank[y]++;
+  }
+};
 
-    // Creación de la lista de aristas
-    for (int i = 0; i < n; i++) {
-        for (int j = i + 1; j < n; j++) {
-            if (graph[i][j] > 0) {
-                edges.push_back({i, j, graph[i][j]});
-            }
-        }
+// Función para implementar el algoritmo de Kruskal y encontrar el árbol mínimo
+// de expansión
+vector<Edge> kruskalMST(int n, const vector<vector<int>> &grafo) {
+  vector<Edge> edges;
+  // Convertimos la matriz de adyacencia en una lista de aristas
+  for (int i = 0; i < n; i++) {
+    for (int j = i + 1; j < n; j++) {
+      if (grafo[i][j] != 0) {
+        edges.push_back({i, j, grafo[i][j]});
+      }
     }
-
-    // Ordenar las aristas por peso
-    sort(edges.begin(), edges.end());
-
-    // Unión de conjuntos disjuntos según Kruskal
-    for (const auto &edge : edges) {
-        if (find(parent, edge.u) != find(parent, edge.v)) {
-            union_sets(parent, rank, edge.u, edge.v);
-            result.push_back(edge);
-        }
+  }
+  // Ordenamos las aristas por peso
+  sort(edges.begin(), edges.end());
+  DisjointSets ds(n);
+  vector<Edge> result;
+  for (auto &edge : edges) {
+    int u_set = ds.find(edge.origen);
+    int v_set = ds.find(edge.destino);
+    if (u_set != v_set) {
+      result.push_back(edge);
+      ds.merge(u_set, v_set);
     }
-
-    return result;
+  }
+  return result;
 }
 
-// Implementación del Problema del Viajante (TSP)
-int tsp(int n, vector<vector<int>> &graph, vector<int> &path) {
-    vector<int> nodes(n - 1);
-    iota(nodes.begin(), nodes.end(), 1); // Generar nodos 1, 2, ..., n-1
-
-    int minCost = numeric_limits<int>::max(); // Inicializar costo mínimo
-    vector<int> bestPath;
-
-    // Generar todas las permutaciones posibles
-    do {
-        int cost = 0, prev = 0;
-        for (int node : nodes) {
-            cost += graph[prev][node];
-            prev = node;
-        }
-        cost += graph[prev][0]; // Regresar al nodo inicial
-        if (cost < minCost) {
-            minCost = cost;
-            bestPath = nodes; // Guardar la mejor ruta
-        }
-    } while (next_permutation(nodes.begin(), nodes.end()));
-
-    path = bestPath;
-    path.insert(path.begin(), 0);
-    path.push_back(0);
-    return minCost;
-}
-
-// BFS para encontrar caminos en la red residual (Ford-Fulkerson)
-bool bfs(vector<vector<int>> &residual, int source, int sink, vector<int> &parent) {
-    int n = residual.size();
-    vector<bool> visited(n, false);
-    queue<int> q;
-
-    q.push(source);
-    visited[source] = true;
-    parent[source] = -1;
-
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
-
-        for (int v = 0; v < n; v++) {
-            if (!visited[v] && residual[u][v] > 0) {
-                q.push(v);
-                parent[v] = u;
-                visited[v] = true;
-                if (v == sink) 
-                 return true; // Si alcanzamos el nodo destino
-            }
-        }
+// Función para implementar el algoritmo TSP (Utilizamos fuerza bruta ya que N
+// es pequeño)
+int tsp(int n, const vector<vector<int>> &grafo, vector<int> &ruta_optima) {
+  vector<int> vertices;
+  for (int i = 1; i < n; i++)
+    vertices.push_back(i);
+  int min_path = numeric_limits<int>::max();
+  do {
+    int current_weight = 0;
+    int k = 0;
+    for (int i = 0; i < vertices.size(); i++) {
+      current_weight += grafo[k][vertices[i]];
+      k = vertices[i];
     }
-    return false;
-}
-
-// Implementación del algoritmo de Ford-Fulkerson
-int ford_fulkerson(vector<vector<int>> &capacity, int source, int sink) {
-    int n = capacity.size();
-    vector<vector<int>> residual = capacity; // Crear red residual
-    vector<int> parent(n);
-    int maxFlow = 0;
-
-    // Encontrar caminos aumentantes
-    while (bfs(residual, source, sink, parent)) {
-        int pathFlow = numeric_limits<int>::max();
-        for (int v = sink; v != source; v = parent[v]) {
-            int u = parent[v];
-            pathFlow = min(pathFlow, residual[u][v]);
-        }
-
-        // Actualizar capacidades residuales
-        for (int v = sink; v != source; v = parent[v]) {
-            int u = parent[v];
-            residual[u][v] -= pathFlow;
-            residual[v][u] += pathFlow;
-        }
-
-        maxFlow += pathFlow; // Aumentar flujo máximo
+    current_weight += grafo[k][0];
+    if (current_weight < min_path) {
+      min_path = current_weight;
+      ruta_optima = vertices;
     }
-
-    return maxFlow;
+  } while (next_permutation(vertices.begin(), vertices.end()));
+  return min_path;
 }
 
-// Cálculo de distancia entre dos puntos
-double distance(pair<int, int> a, pair<int, int> b) {
-    return sqrt(pow(a.first - b.first, 2) + pow(a.second - b.second, 2));
-}
-
-// Encontrar la central más cercana a una casa
-int nearest_central(pair<int, int> house, vector<pair<int, int>> &centrals) {
-    int bestCentral = -1;
-    double minDist = numeric_limits<double>::max();
-
-    for (int i = 0; i < centrals.size(); i++) {
-        double d = distance(house, centrals[i]);
-        if (d < minDist) {
-            minDist = d;
-            bestCentral = i; // Actualizar mejor central
+// Función para encontrar el flujo máximo utilizando el algoritmo de
+// Ford-Fulkerson
+bool bfs(const vector<vector<int>> &rGraph, int s, int t, vector<int> &parent) {
+  int n = rGraph.size();
+  vector<bool> visited(n, false);
+  queue<int> q;
+  q.push(s);
+  visited[s] = true;
+  parent[s] = -1;
+  while (!q.empty()) {
+    int u = q.front();
+    q.pop();
+    for (int v = 0; v < n; v++) {
+      if (!visited[v] && rGraph[u][v] > 0) {
+        if (v == t) {
+          parent[v] = u;
+          return true;
         }
+        q.push(v);
+        parent[v] = u;
+        visited[v] = true;
+      }
     }
+  }
+  return false;
+}
 
-    return bestCentral;
+int fordFulkerson(vector<vector<int>> &graph, int s, int t) {
+  int u, v;
+  int n = graph.size();
+  vector<vector<int>> rGraph = graph;
+  vector<int> parent(n);
+  int max_flow = 0;
+  while (bfs(rGraph, s, t, parent)) {
+    int path_flow = numeric_limits<int>::max();
+    for (v = t; v != s; v = parent[v]) {
+      u = parent[v];
+      path_flow = min(path_flow, rGraph[u][v]);
+    }
+    for (v = t; v != s; v = parent[v]) {
+      u = parent[v];
+      rGraph[u][v] -= path_flow;
+      rGraph[v][u] += path_flow;
+    }
+    max_flow += path_flow;
+  }
+  return max_flow;
+}
+
+// Función para realizar la búsqueda lineal y encontrar la central más cercana
+pair<int, int> buscarCentralMasCercana(const vector<pair<int, int>> &centrales,
+                                       pair<int, int> nuevaUbicacion) {
+  double distanciaMinima = numeric_limits<double>::max();
+  pair<int, int> centralMasCercana;
+  for (const auto &central : centrales) {
+    double distancia = sqrt(pow(central.first - nuevaUbicacion.first, 2) +
+                            pow(central.second - nuevaUbicacion.second, 2));
+    if (distancia < distanciaMinima) {
+      distanciaMinima = distancia;
+      centralMasCercana = central;
+    }
+  }
+  return centralMasCercana;
 }
 
 int main() {
-    int n;
-    cout << "Ingrese el numero de las colonias: " << endl;
-    cin >> n;
+  int N;
+  cin >> N;
+  // Lectura de la matriz de distancias
+  vector<vector<int>> grafo(N, vector<int>(N));
+  for (int i = 0; i < N; i++)
+    for (int j = 0; j < N; j++)
+      cin >> grafo[i][j];
+  // Lectura de la matriz de capacidades
+  vector<vector<int>> capacidades(N, vector<int>(N));
+  for (int i = 0; i < N; i++)
+    for (int j = 0; j < N; j++)
+      cin >> capacidades[i][j];
+  // Lectura de las ubicaciones de las centrales y la nueva contratación
+  vector<pair<int, int>> centrales;
+  pair<int, int> nuevaUbicacion;
+  string line;
+  getline(cin, line); // Limpiar el buffer
 
-    vector<vector<int>> graph(n, vector<int>(n));
-    vector<vector<int>> capacity(n, vector<int>(n));
-    vector<pair<int, int>> locations(n);
-    vector<pair<int, int>> centrals;
-
-    // Leer grafo de distancias
-    cout << "Ingrese los valores del grafo, que representan las distancias entre las colonias de la ciudad: " << endl;
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            cin >> graph[i][j];
-
-    // Leer capacidad de flujo de datos
-    cout << "Ingrese los valores del que representan las capacidades maximas de flujo de datos entre colonia i y colonia j: " << endl;
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            cin >> capacity[i][j];
-    cout << "Ingrese pares ordenados (A,B), representando la ubicacion en un plano" << endl;
-    for (int i = 0; i < n; i++)
-        cin >> locations[i].first >> locations[i].second;
-
-    // Leer ubicaciones de centrales
-    int centralCount;
-    cout << "Ingrese el numero de los centrales: " << endl;
-    cin >> centralCount;
-
-    cout << "Ingrese el valor de la ubicacion de los centrales (x, y): " << endl;
-    for (int i = 0; i < centralCount; i++) {
-        pair<int, int> central;
-        cin >> central.first >> central.second;
-        centrals.push_back(central);
+  // Vamos a leer N+1 líneas de coordenadas
+  int numCoordenadas = N + 1;
+  for (int i = 0; i < numCoordenadas; i++) {
+    getline(cin, line);
+    if (line.empty()) {
+      i--; // Ignorar líneas vacías
+      continue;
     }
-
-    // Ejecución de Kruskal
-    auto edges = kruskal(n, graph);
-    cout << "1.\n";
-    for (const auto &edge : edges)
-        cout << "(" << char('A' + edge.u) << ", " << char('A' + edge.v) << ")\n";
-
-    // Ejecución del Problema del Viajante
-    vector<int> path;
-    int minCost = tsp(n, graph, path);
-    cout << "2.\n";
-    for (int node : path)
-        cout << char('A' + node) << " ";
-    cout << endl;
-
-    // Ejecución de Ford-Fulkerson
-    int maxFlow = ford_fulkerson(capacity, 0, n - 1);
-    cout << "3.\n" << maxFlow << endl;
-
-    // Encontrar central más cercana
-    cout << "4.\n";
-    for (const auto &house : locations) {
-        int nearest = nearest_central(house, centrals);
-        cout << "(" << centrals[nearest].first << ", " << centrals[nearest].second << ")\n";
+    int x, y;
+    sscanf(line.c_str(), "(%d,%d)", &x, &y);
+    if (i < numCoordenadas - 1) {
+      centrales.push_back({x, y});
+    } else {
+      nuevaUbicacion = {x, y};
     }
+  }
 
-    return 0;
+  // Punto 1: Kruskal's Algorithm
+  vector<Edge> mst = kruskalMST(N, grafo);
+  cout << "1.\n";
+  for (auto &edge : mst) {
+    cout << "(" << getColonyName(edge.origen) << ", "
+         << getColonyName(edge.destino) << ")\n";
+  }
+  // Punto 2: Traveling Salesman Problem
+  vector<int> ruta_optima;
+  tsp(N, grafo, ruta_optima);
+  cout << "2.\n";
+  cout << getColonyName(0) << " ";
+  for (auto &v : ruta_optima)
+    cout << getColonyName(v) << " ";
+  cout << getColonyName(0) << "\n";
+  // Punto 3: Ford-Fulkerson Algorithm
+  int max_flow = fordFulkerson(capacidades, 0, N - 1);
+  cout << "3.\n" << max_flow << "\n";
+  // Punto 4: Búsqueda lineal
+  pair<int, int> centralCercana =
+      buscarCentralMasCercana(centrales, nuevaUbicacion);
+  cout << "4.\n";
+  cout << "(" << centralCercana.first << ", " << centralCercana.second << ")\n";
+  return 0;
 }
