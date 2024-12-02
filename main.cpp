@@ -49,7 +49,7 @@ struct Edge {
   bool operator<(const Edge &e) const { return peso < e.peso; }
 };
 
-// Estructura para la búsqueda de conjuntos disjuntos (Union-find_)
+// Estructura para la búsqueda de conjuntos disjuntos (Union-find)
 struct DisjointSets {
   vector<int> parent, rank;
   DisjointSets(int n) {
@@ -58,13 +58,13 @@ struct DisjointSets {
     for (int i = 0; i < n; i++)
       parent[i] = i;
   }
-  int find_(int u) {
+  int find(int u) {
     if (u != parent[u])
-      parent[u] = find_(parent[u]);
+      parent[u] = find(parent[u]);
     return parent[u];
   }
-  void merge__(int x, int y) {
-    x = find_(x), y = find_(y);
+  void merge(int x, int y) {
+    x = find(x), y = find(y);
     if (rank[x] > rank[y])
       parent[y] = x;
     else
@@ -91,11 +91,11 @@ vector<Edge> kruskal_mst(int n, const vector<vector<int>> &grafo) {
   DisjointSets ds(n);
   vector<Edge> result;
   for (auto &edge : edges) {
-    int u_set = ds.find_(edge.origen);
-    int v_set = ds.find_(edge.destino);
+    int u_set = ds.find(edge.origen);
+    int v_set = ds.find(edge.destino);
     if (u_set != v_set) {
       result.push_back(edge);
-      ds.merge_(u_set, v_set);
+      ds.merge(u_set, v_set);
     }
   }
   return result;
